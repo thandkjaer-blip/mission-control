@@ -1,36 +1,42 @@
 # mission-control
 
-Nyt Mission Control Center for OpenClaw.
-
-## Formål
-Bygge et production-minded kontrolcenter til styring af agenter, tasks, workflows, observability, costs, governance og command execution.
-
-## Projektprincipper
-- Repo og filer er source of truth
-- Vigtige beslutninger skrives ned
-- Subagenter afleverer arbejde i filer
-- MVP før overengineeret automation
+Mission Control er nu scaffoldet som WP1-monorepo efter den låste retning i `decisions/0003-wp1-execution-direction.md`.
 
 ## Struktur
-- `docs/` — arkitektur, API, schema, vision, scope
-- `backlog/` — MVP backlog og prioritering
-- `decisions/` — beslutningslog
-- `tasks/` — todo/doing/done for konkrete work packages
-- `apps/` — web + API apps
-- `packages/` — delte kontrakter og typer
-- `infra/` — env, compose og scripts
+- `apps/web` — Next.js 15 operator shell scaffold
+- `apps/api` — Fastify API scaffold med health, readiness, `me`, `overview` og WebSocket live-stub
+- `packages/shared` — delte typer, DTO’er og live event envelopes
+- `infra/docker` — lokal Postgres + Redis via Docker Compose
+- `decisions/`, `docs/`, `tasks/` — fortsat source of truth for retning og arbejde
 
-## Første mål
-1. Konsolidere eksisterende projektmateriale
-2. Fastlægge MVP scope
-3. Etablere implementeringsplan
-4. Begynde første kodebase for backend + UI shell
+## Golden path
+1. `pnpm install`
+2. `pnpm infra:up`
+3. `cp .env.example .env`
+4. `pnpm db:generate`
+5. `pnpm db:migrate`
+6. `pnpm dev`
 
-## WP1 scaffold status
-Der er nu et første monorepo-skelet med:
-- `apps/api` som Fastify-baseret API bootstrap
-- `packages/shared` til fælles DTO'er og live-kontrakter
-- root workspace-filer for `pnpm` + `turbo`
-- `infra/env/api.env.example` til lokal API-konfiguration
+## Standardkommandoer
+- `pnpm dev`
+- `pnpm build`
+- `pnpm lint`
+- `pnpm test`
+- `pnpm typecheck`
+- `pnpm infra:up`
+- `pnpm infra:down`
+- `pnpm infra:reset`
+- `pnpm db:generate`
+- `pnpm db:migrate`
+- `pnpm db:seed`
 
-Næste naturlige skridt er installation af dependencies, Prisma/Redis-wiring, Docker Compose og web shell scaffold.
+## WP1 leveret her
+- root workspace config (`pnpm`, `turbo`, shared TS config)
+- web shell scaffold med hovedruter
+- API scaffold med health + live transport stub
+- delt kontraktpakke
+- Prisma + Redis wiring baseline
+- Docker Compose baseline
+- CI workflow baseline
+
+Næste logiske skridt er WP2: konkret schema/migrations og read-model APIs ovenpå denne foundation.

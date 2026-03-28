@@ -1,14 +1,26 @@
 {
   "name": "mission-control",
   "private": true,
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.8.0",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "typecheck": "turbo typecheck"
+    "test": "turbo test",
+    "typecheck": "turbo typecheck",
+    "infra:up": "bash infra/scripts/infra-up.sh",
+    "infra:down": "bash infra/scripts/infra-down.sh",
+    "infra:reset": "bash infra/scripts/infra-reset.sh",
+    "db:migrate": "pnpm --filter @mission-control/api prisma migrate dev",
+    "db:generate": "pnpm --filter @mission-control/api prisma generate",
+    "db:seed": "pnpm --filter @mission-control/api db:seed"
   },
   "devDependencies": {
-    "turbo": "^2.5.6"
+    "@types/node": "^24.5.2",
+    "eslint": "^9.35.0",
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   }
 }

@@ -18,12 +18,11 @@ Projektet er bootstrappet som et rigtigt repo-arbejdsområde og er nu flyttet fr
 - MVP stack-beslutning og endelig WP1-eksekveringsretning er nu låst i `decisions/0002-mvp-stack-decision.md` og `decisions/0003-wp1-execution-direction.md`
 
 ### Hvad mangler
-- Selve repo/app scaffolding-implementeringen for WP1
+- WP1 repo/app scaffolding er nu implementeret som pnpm/turbo monorepo med web/api/shared/infra baseline
 - DB/migrations implementation for WP2
 - Runtime contracts og ingestion for WP3
 
 ### Næste skridt
-1. Udfør WP1 foundation/scaffolding efter den låste retning i `decisions/0003-wp1-execution-direction.md`
-2. Scaffold `apps/api`, `apps/web`, `packages/shared` og `infra/`
-3. Etabler Prisma-, Redis- og Docker Compose-baseline
-4. Forbered WP2 migrationsspor på den låste stack
+1. Installér dependencies og kør den nye golden path (`pnpm infra:up`, `pnpm db:migrate`, `pnpm dev`)
+2. Start WP2 på Prisma schema/migrations og første read models
+3. Uddyb web shell fra placeholder-ruter til rigtige overview/agents/tasks/workflows surfaces

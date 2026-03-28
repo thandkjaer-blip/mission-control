@@ -1,27 +1,31 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import websocket from '@fastify/websocket';
+import { env } from './config/env';
+import { AppError } from './lib/errors';
+import { prismaPlugin } from './plugins/prisma';
+import { redisPlugin } from './plugins/redis';
+import { healthRoutes } from './routes/health';
+import { apiRoutes } from './routes/api';
 
-import { loadEnv } from './config/env.js';
-import { buildLoggerConfig } from './config/logger.js';
-import { sendApiError } from './lib/errors.js';
-import appContextPlugin from './plugins/app-context.js';
-import apiV1Routes from './routes/api/v1/index.js';
-import healthRoutes from './routes/health.js';
+export async function buildApp() {
+  const app = Fastify({ logger: { level: env.LOG_LEVEL } });
 
-export const buildApp = () => {
-  const env = loadEnv();
-
-  const app = Fastify({
-    logger: buildLoggerConfig(env.logLevel),
-  });
+  await app.register(cors, { origin: true });
+  await app.register(websocket);
+  await app.register(prismaPlugin);
+  await app.register(redisPlugin);
+  await app.register(healthRoutes);
+  await app.register(apiRoutes);
 
   app.setErrorHandler((error, _request, reply) => {
+    if (error instanceof AppError) {
+      return reply.status(error.statusCode).send(error.toResponse());
+    }
+
     app.log.error(error);
-    return sendApiError(reply, 500, 'INTERNAL_ERROR', 'Unexpected server error');
+    return reply.status(500).send({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Unexpected server error' } });
   });
 
-  app.register(appContextPlugin, { env });
-  app.register(healthRoutes);
-  app.register(apiV1Routes, { prefix: '/api/v1' });
-
   return app;
-};
+}

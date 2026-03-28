@@ -1,15 +1,18 @@
 import type { FastifyPluginAsync } from 'fastify';
 
-const healthRoutes: FastifyPluginAsync = async (app) => {
+export const healthRoutes: FastifyPluginAsync = async (app) => {
   app.get('/healthz', async () => ({ status: 'ok' }));
 
-  app.get('/readyz', async () => ({
-    status: 'ready',
-    checks: {
-      postgres: app.services.postgres,
-      redis: app.services.redis,
-    },
-  }));
-};
+  app.get('/readyz', async () => {
+    await app.prisma.$queryRaw`SELECT 1`;
+    await app.redis.ping();
 
-export default healthRoutes;
+    return {
+      status: 'ready',
+      checks: {
+        postgres: 'ok',
+        redis: 'ok'
+      }
+    };
+  });
+};

@@ -1,8 +1,9 @@
 node_modules
 .pnpm-store
+.next
+dist
+coverage
 .env
 .env.local
 *.log
-dist
-coverage
-.tsbuildinfo
+apps/api/prisma/dev.db

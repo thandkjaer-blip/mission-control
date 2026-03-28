@@ -1,9 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
     "outDir": "dist",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/app.ts",
+    "src/server.ts",
+    "src/config/env.ts",
+    "src/lib/**/*.ts",
+    "src/plugins/prisma.ts",
+    "src/plugins/redis.ts",
+    "src/routes/health.ts",
+    "src/routes/api.ts"
+  ]
 }

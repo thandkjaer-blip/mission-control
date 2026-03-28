@@ -1,32 +1,19 @@
-export interface AppEnv {
-  nodeEnv: string;
-  host: string;
-  port: number;
-  logLevel: string;
-  databaseUrl: string;
-  redisUrl: string;
-  authMode: 'dev' | 'disabled';
-}
+import { z } from 'zod';
 
-const required = (key: string, fallback?: string): string => {
-  const value = process.env[key] ?? fallback;
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  PORT: z.coerce.number().default(4001),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  DATABASE_URL: z.string().url(),
+  REDIS_URL: z.string().url(),
+  MISSION_CONTROL_AUTH_MODE: z.enum(['dev']).default('dev')
+});
 
-  if (!value) {
-    throw new Error(`Missing required env var: ${key}`);
-  }
-
-  return value;
-};
-
-export const loadEnv = (): AppEnv => ({
-  nodeEnv: process.env.NODE_ENV ?? 'development',
-  host: process.env.HOST ?? '0.0.0.0',
-  port: Number(process.env.PORT ?? '4001'),
-  logLevel: process.env.LOG_LEVEL ?? 'info',
-  databaseUrl: required(
-    'DATABASE_URL',
-    'postgresql://mission_control:mission_control@localhost:5432/mission_control',
-  ),
-  redisUrl: required('REDIS_URL', 'redis://localhost:6379'),
-  authMode: (process.env.AUTH_MODE ?? 'dev') as AppEnv['authMode'],
+export const env = envSchema.parse({
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT ?? process.env.API_PORT,
+  LOG_LEVEL: process.env.LOG_LEVEL,
+  DATABASE_URL: process.env.DATABASE_URL,
+  REDIS_URL: process.env.REDIS_URL,
+  MISSION_CONTROL_AUTH_MODE: process.env.MISSION_CONTROL_AUTH_MODE
 });
