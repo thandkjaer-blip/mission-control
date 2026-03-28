@@ -19,3 +19,8 @@ Låse de vigtigste tekniske valg tidligt nok til at undgå flydende fundament.
 
 ## Depends on
 - docs/WORK_PACKAGES.md
+
+## Completed
+- Oprettet beslutningsdokument: `decisions/0002-mvp-stack-decision.md`
+- Låst MVP-stack til Next.js, Fastify, Prisma + rå SQL, WebSocket, Docker Compose (Postgres + Redis)
+- Givet eksplicit anbefaling til WP1-scaffolding
