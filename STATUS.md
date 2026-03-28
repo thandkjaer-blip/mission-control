@@ -15,15 +15,15 @@ Projektet er bootstrappet som et rigtigt repo-arbejdsområde og er nu flyttet fr
 - Første status- og styringsfiler oprettet
 - Konkret work-package plan for MVP oprettet i `docs/WORK_PACKAGES.md`
 - Første konkrete WP1-WP3 taskfiler oprettet i `tasks/todo/`
+- MVP stack-beslutning og endelig WP1-eksekveringsretning er nu låst i `decisions/0002-mvp-stack-decision.md` og `decisions/0003-wp1-execution-direction.md`
 
 ### Hvad mangler
-- Beslutning om endelig teknisk stack for MVP-implementering
-- Repo/app scaffolding for WP1
+- Selve repo/app scaffolding-implementeringen for WP1
 - DB/migrations implementation for WP2
 - Runtime contracts og ingestion for WP3
 
 ### Næste skridt
-1. Opret beslutningsdokument for MVP-stack
-2. Start WP1 foundation/scaffolding
-3. Forbered WP2 migrationsspor
-4. Klargør agentarbejde mod konkrete implementeringstasks
+1. Udfør WP1 foundation/scaffolding efter den låste retning i `decisions/0003-wp1-execution-direction.md`
+2. Scaffold `apps/api`, `apps/web`, `packages/shared` og `infra/`
+3. Etabler Prisma-, Redis- og Docker Compose-baseline
+4. Forbered WP2 migrationsspor på den låste stack
