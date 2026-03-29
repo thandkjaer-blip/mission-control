@@ -39,4 +39,28 @@ Mission Control er nu scaffoldet som WP1-monorepo efter den låste retning i `de
 - Docker Compose baseline
 - CI workflow baseline
 
-Næste logiske skridt er WP2: konkret schema/migrations og read-model APIs ovenpå denne foundation.
+## WP2 data backbone (første rigtige slice)
+- `apps/api/prisma/schema.prisma` er nu udvidet fra placeholder-modellen til en MVP-schemaflade for:
+  - users
+  - agents
+  - workflows
+  - tasks + workflow task dependencies
+  - events + structured logs + agent metric snapshots
+  - cost records + provider health snapshots
+  - alerts + control commands
+  - audit logs + API key inventory
+- Første migration ligger i `apps/api/prisma/migrations/20260329080000_mvp_data_backbone/`
+- Seed-data i `apps/api/prisma/seed.ts` opretter et deterministisk demo-miljø med:
+  - 4 brugere
+  - 5 agenter
+  - 3 workflows
+  - 10 tasks med dependencies, blocked/running/failed states
+  - repræsentative alerts, commands, events, logs, metrics, costs og provider-health snapshots
+
+### Bevidst udskudt fra denne schema-pass
+- dybere read-model queries og API-endpoints
+- ingestion write-paths og status-reconciliation
+- trigger/view/materialized-read-model arbejde
+- mere avanceret RBAC og auth-binding til `users`
+
+Næste logiske skridt er at koble overview/agents/tasks/workflows-API’erne til denne persistence-layer.

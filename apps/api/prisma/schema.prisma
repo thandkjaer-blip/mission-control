@@ -7,8 +7,466 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model RuntimeProbe {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  note      String
+enum AgentType {
+  programmer
+  uiux
+  po
+  graphic
+  infra
+}
+
+enum AgentStatus {
+  idle
+  working
+  failed
+  stopped
+  degraded
+  starting
+}
+
+enum HealthStatus {
+  healthy
+  warning
+  critical
+}
+
+enum TaskStatus {
+  pending
+  queued
+  running
+  completed
+  failed
+  cancelled
+  blocked
+  retrying
+}
+
+enum WorkflowStatus {
+  pending
+  running
+  completed
+  failed
+  cancelled
+  partial
+}
+
+enum TriggerType {
+  manual
+  schedule
+  event
+  api
+}
+
+enum PriorityLevel {
+  low
+  normal
+  high
+  critical
+}
+
+enum DependencyType {
+  hard
+  soft
+}
+
+enum EventSeverity {
+  info
+  warning
+  error
+  critical
+}
+
+enum LogLevel {
+  debug
+  info
+  warn
+  error
+}
+
+enum AlertType {
+  task_failed
+  agent_stuck
+  cost_spike
+  api_failure
+  infra_degraded
+  security_event
+}
+
+enum AlertSeverity {
+  warning
+  critical
+}
+
+enum AlertStatus {
+  open
+  acknowledged
+  resolved
+  suppressed
+}
+
+enum ActorType {
+  user
+  system
+}
+
+enum CommandStatus {
+  pending
+  approved
+  executing
+  succeeded
+  failed
+  cancelled
+}
+
+enum KeyStatus {
+  active
+  rotating
+  revoked
+  error
+}
+
+enum RoleType {
+  admin
+  operator
+  viewer
+  auditor
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  email       String   @unique
+  displayName String   @map("display_name")
+  role        RoleType
+  isActive    Boolean  @default(true) @map("is_active")
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("users")
+}
+
+model Agent {
+  id                 String                @id @default(uuid()) @db.Uuid
+  name               String
+  type               AgentType
+  version            String
+  status             AgentStatus           @default(starting)
+  health             HealthStatus          @default(healthy)
+  currentTaskId      String?               @unique @map("current_task_id") @db.Uuid
+  workerId           String?               @map("worker_id")
+  lastHeartbeatAt    DateTime?             @map("last_heartbeat_at") @db.Timestamptz(6)
+  startedAt          DateTime?             @map("started_at") @db.Timestamptz(6)
+  restartCount       Int                   @default(0) @map("restart_count")
+  successRate        Decimal               @default(0) @map("success_rate") @db.Decimal(5, 2)
+  avgTaskDurationMs  BigInt                @default(0) @map("avg_task_duration_ms")
+  totalTasksCompleted BigInt               @default(0) @map("total_tasks_completed")
+  tokenUsageTotal    BigInt                @default(0) @map("token_usage_total")
+  costTotalUsd       Decimal               @default(0) @map("cost_total_usd") @db.Decimal(14, 6)
+  tags               String[]              @default([])
+  metadata           Json                  @default("{}")
+  createdAt          DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
+  currentTask        Task?                 @relation("AgentCurrentTask", fields: [currentTaskId], references: [id], onDelete: SetNull)
+  assignedTasks      Task[]                @relation("TaskAssignedAgent")
+  events             Event[]
+  logs               StructuredLog[]
+  metricSnapshots    AgentMetricSnapshot[]
+  costRecords        CostRecord[]
+  alerts             Alert[]
+
+  @@index([status], map: "idx_agents_status")
+  @@index([type], map: "idx_agents_type")
+  @@index([lastHeartbeatAt(sort: Desc)], map: "idx_agents_last_heartbeat")
+  @@map("agents")
+}
+
+model Workflow {
+  id             String          @id @default(uuid()) @db.Uuid
+  name           String
+  status         WorkflowStatus  @default(pending)
+  triggerType    TriggerType     @map("trigger_type")
+  initiatedBy    String          @map("initiated_by")
+  startedAt      DateTime?       @map("started_at") @db.Timestamptz(6)
+  completedAt    DateTime?       @map("completed_at") @db.Timestamptz(6)
+  totalTasks     Int             @default(0) @map("total_tasks")
+  completedTasks Int             @default(0) @map("completed_tasks")
+  failedTasks    Int             @default(0) @map("failed_tasks")
+  totalCostUsd   Decimal         @default(0) @map("total_cost_usd") @db.Decimal(14, 6)
+  totalTokens    BigInt          @default(0) @map("total_tokens")
+  slaClass       String?         @map("sla_class")
+  metadata       Json            @default("{}")
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tasks          Task[]
+  events         Event[]
+  logs           StructuredLog[]
+  costRecords    CostRecord[]
+  alerts         Alert[]
+
+  @@index([status], map: "idx_workflows_status")
+  @@index([createdAt(sort: Desc)], map: "idx_workflows_created_at")
+  @@map("workflows")
+}
+
+model Task {
+  id               String         @id @default(uuid()) @db.Uuid
+  workflowId       String?        @map("workflow_id") @db.Uuid
+  parentTaskId     String?        @map("parent_task_id") @db.Uuid
+  assignedAgentId  String?        @map("assigned_agent_id") @db.Uuid
+  type             String
+  priority         PriorityLevel  @default(normal)
+  status           TaskStatus     @default(pending)
+  title            String
+  description      String
+  input            Json           @default("{}")
+  output           Json?
+  error            Json?
+  retryCount       Int            @default(0) @map("retry_count")
+  maxRetries       Int            @default(3) @map("max_retries")
+  createdBy        String         @map("created_by")
+  dueAt            DateTime?      @map("due_at") @db.Timestamptz(6)
+  startedAt        DateTime?      @map("started_at") @db.Timestamptz(6)
+  completedAt      DateTime?      @map("completed_at") @db.Timestamptz(6)
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  workflow         Workflow?      @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  parentTask       Task?          @relation("TaskHierarchy", fields: [parentTaskId], references: [id], onDelete: SetNull)
+  childTasks       Task[]         @relation("TaskHierarchy")
+  assignedAgent    Agent?         @relation("TaskAssignedAgent", fields: [assignedAgentId], references: [id], onDelete: SetNull)
+  currentAgentFor  Agent?         @relation("AgentCurrentTask")
+  dependencies     WorkflowTaskDependency[] @relation("TaskDependencies")
+  dependedOnBy     WorkflowTaskDependency[] @relation("TaskDependents")
+  events           Event[]
+  logs             StructuredLog[]
+  costRecords      CostRecord[]
+  alerts           Alert[]
+
+  @@index([status], map: "idx_tasks_status")
+  @@index([workflowId], map: "idx_tasks_workflow_id")
+  @@index([assignedAgentId], map: "idx_tasks_agent_id")
+  @@index([priority, status], map: "idx_tasks_priority_status")
+  @@index([createdAt(sort: Desc)], map: "idx_tasks_created_at")
+  @@map("tasks")
+}
+
+model WorkflowTaskDependency {
+  taskId           String         @map("task_id") @db.Uuid
+  dependsOnTaskId  String         @map("depends_on_task_id") @db.Uuid
+  dependencyType   DependencyType @default(hard) @map("dependency_type")
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  task             Task           @relation("TaskDependencies", fields: [taskId], references: [id], onDelete: Cascade)
+  dependsOnTask    Task           @relation("TaskDependents", fields: [dependsOnTaskId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, dependsOnTaskId])
+  @@map("workflow_task_dependencies")
+}
+
+model Event {
+  id            String        @id @default(uuid()) @db.Uuid
+  sourceType    String        @map("source_type")
+  sourceId      String        @map("source_id")
+  eventType     String        @map("event_type")
+  severity      EventSeverity @default(info)
+  ts            DateTime      @db.Timestamptz(6)
+  correlationId String?       @map("correlation_id")
+  traceId       String?       @map("trace_id")
+  workflowId    String?       @map("workflow_id") @db.Uuid
+  taskId        String?       @map("task_id") @db.Uuid
+  agentId       String?       @map("agent_id") @db.Uuid
+  message       String
+  payload       Json          @default("{}")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  workflow      Workflow?     @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  task          Task?         @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  agent         Agent?        @relation(fields: [agentId], references: [id], onDelete: SetNull)
+
+  @@index([ts(sort: Desc)], map: "idx_events_ts")
+  @@index([workflowId], map: "idx_events_workflow_id")
+  @@index([taskId], map: "idx_events_task_id")
+  @@index([agentId], map: "idx_events_agent_id")
+  @@index([correlationId], map: "idx_events_correlation_id")
+  @@index([eventType], map: "idx_events_event_type")
+  @@map("events")
+}
+
+model StructuredLog {
+  id         String    @id @default(uuid()) @db.Uuid
+  ts         DateTime  @db.Timestamptz(6)
+  level      LogLevel
+  service    String
+  agentId    String?   @map("agent_id") @db.Uuid
+  workflowId String?   @map("workflow_id") @db.Uuid
+  taskId     String?   @map("task_id") @db.Uuid
+  traceId    String?   @map("trace_id")
+  spanId     String?   @map("span_id")
+  message    String
+  context    Json      @default("{}")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  agent      Agent?    @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  workflow   Workflow? @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  task       Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([ts(sort: Desc)], map: "idx_logs_ts")
+  @@index([agentId], map: "idx_logs_agent_id")
+  @@index([workflowId], map: "idx_logs_workflow_id")
+  @@index([taskId], map: "idx_logs_task_id")
+  @@index([traceId], map: "idx_logs_trace_id")
+  @@map("structured_logs")
+}
+
+model AgentMetricSnapshot {
+  id                String   @id @default(uuid()) @db.Uuid
+  agentId           String   @map("agent_id") @db.Uuid
+  ts                DateTime @db.Timestamptz(6)
+  cpuPct            Decimal? @map("cpu_pct") @db.Decimal(5, 2)
+  memoryMb          Decimal? @map("memory_mb") @db.Decimal(12, 2)
+  tokensPerMin      Decimal? @map("tokens_per_min") @db.Decimal(12, 2)
+  requestsPerMin    Decimal? @map("requests_per_min") @db.Decimal(12, 2)
+  avgLatencyMs      Decimal? @map("avg_latency_ms") @db.Decimal(12, 2)
+  successRateWindow Decimal? @map("success_rate_window") @db.Decimal(5, 2)
+  queueDepth        Int?     @map("queue_depth")
+  activeTasks       Int?     @map("active_tasks")
+  costPerHourUsd    Decimal? @map("cost_per_hour_usd") @db.Decimal(12, 6)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  agent             Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@index([agentId, ts(sort: Desc)], map: "idx_metric_snapshots_agent_ts")
+  @@map("agent_metric_snapshots")
+}
+
+model CostRecord {
+  id               String    @id @default(uuid()) @db.Uuid
+  ts               DateTime  @db.Timestamptz(6)
+  provider         String
+  model            String
+  agentId          String?   @map("agent_id") @db.Uuid
+  workflowId       String?   @map("workflow_id") @db.Uuid
+  taskId           String?   @map("task_id") @db.Uuid
+  promptTokens     BigInt    @default(0) @map("prompt_tokens")
+  completionTokens BigInt    @default(0) @map("completion_tokens")
+  totalTokens      BigInt    @default(0) @map("total_tokens")
+  costUsd          Decimal   @default(0) @map("cost_usd") @db.Decimal(14, 6)
+  requestCount     Int       @default(1) @map("request_count")
+  metadata         Json      @default("{}")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  agent            Agent?    @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  workflow         Workflow? @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  task             Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([ts(sort: Desc)], map: "idx_cost_records_ts")
+  @@index([agentId], map: "idx_cost_records_agent_id")
+  @@index([workflowId], map: "idx_cost_records_workflow_id")
+  @@index([provider, model], map: "idx_cost_records_provider_model")
+  @@map("cost_records")
+}
+
+model ProviderHealthSnapshot {
+  id         String   @id @default(uuid()) @db.Uuid
+  provider   String
+  status     String
+  latencyMs  Decimal? @map("latency_ms") @db.Decimal(12, 2)
+  errorRate  Decimal? @map("error_rate") @db.Decimal(6, 3)
+  details    Json     @default("{}")
+  ts         DateTime @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("provider_health_snapshots")
+}
+
+model Alert {
+  id             String        @id @default(uuid()) @db.Uuid
+  type           AlertType
+  severity       AlertSeverity
+  status         AlertStatus   @default(open)
+  sourceId       String?       @map("source_id")
+  sourceType     String?       @map("source_type")
+  title          String
+  description    String
+  triggeredAt    DateTime      @map("triggered_at") @db.Timestamptz(6)
+  acknowledgedBy String?       @map("acknowledged_by")
+  acknowledgedAt DateTime?     @map("acknowledged_at") @db.Timestamptz(6)
+  resolvedAt     DateTime?     @map("resolved_at") @db.Timestamptz(6)
+  runbookUrl     String?       @map("runbook_url")
+  payload        Json          @default("{}")
+  workflowId     String?       @map("workflow_id") @db.Uuid
+  taskId         String?       @map("task_id") @db.Uuid
+  agentId        String?       @map("agent_id") @db.Uuid
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  workflow       Workflow?     @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  task           Task?         @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  agent          Agent?        @relation(fields: [agentId], references: [id], onDelete: SetNull)
+
+  @@index([status, severity], map: "idx_alerts_status_severity")
+  @@index([triggeredAt(sort: Desc)], map: "idx_alerts_triggered_at")
+  @@index([agentId], map: "idx_alerts_agent_id")
+  @@index([taskId], map: "idx_alerts_task_id")
+  @@index([workflowId], map: "idx_alerts_workflow_id")
+  @@map("alerts")
+}
+
+model ControlCommand {
+  id                 String        @id @default(uuid()) @db.Uuid
+  type               String
+  targetType         String        @map("target_type")
+  targetId           String        @map("target_id")
+  payload            Json          @default("{}")
+  requestedBy        String        @map("requested_by")
+  requestedAt        DateTime      @default(now()) @map("requested_at") @db.Timestamptz(6)
+  status             CommandStatus @default(pending)
+  approvalRequired   Boolean       @default(false) @map("approval_required")
+  approvalReason     String?       @map("approval_reason")
+  approvedBy         String?       @map("approved_by")
+  approvedAt         DateTime?     @map("approved_at") @db.Timestamptz(6)
+  executionStartedAt DateTime?     @map("execution_started_at") @db.Timestamptz(6)
+  executionFinishedAt DateTime?    @map("execution_finished_at") @db.Timestamptz(6)
+  executionResult    Json?         @map("execution_result")
+  error              Json?
+  correlationId      String?       @map("correlation_id")
+  createdAt          DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status], map: "idx_control_commands_status")
+  @@index([targetType, targetId], map: "idx_control_commands_target")
+  @@index([requestedAt(sort: Desc)], map: "idx_control_commands_requested_at")
+  @@map("control_commands")
+}
+
+model AuditLog {
+  id         String    @id @default(uuid()) @db.Uuid
+  actorId    String    @map("actor_id")
+  actorType  ActorType @map("actor_type")
+  action     String
+  targetType String    @map("target_type")
+  targetId   String    @map("target_id")
+  ts         DateTime  @default(now()) @db.Timestamptz(6)
+  requestId  String?   @map("request_id")
+  before     Json?
+  after      Json?
+  reason     String?
+  result     String
+  ipAddress  String?   @map("ip_address") @db.Inet
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([actorId], map: "idx_audit_logs_actor")
+  @@index([targetType, targetId], map: "idx_audit_logs_target")
+  @@index([ts(sort: Desc)], map: "idx_audit_logs_ts")
+  @@map("audit_logs")
+}
+
+model ApiKeyInventory {
+  id              String    @id @default(uuid()) @db.Uuid
+  provider        String
+  keyAlias        String    @map("key_alias")
+  lastUsedAt      DateTime? @map("last_used_at") @db.Timestamptz(6)
+  status          KeyStatus @default(active)
+  usageLimitUsd   Decimal?  @map("usage_limit_usd") @db.Decimal(14, 6)
+  usageCurrentUsd Decimal?  @map("usage_current_usd") @db.Decimal(14, 6)
+  owner           String?
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([provider, keyAlias])
+  @@map("api_key_inventory")
 }

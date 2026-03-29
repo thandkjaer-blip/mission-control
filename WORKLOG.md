@@ -62,6 +62,14 @@
   - the first endpoints to implement and 1–2 day execution slices
 - Updated `STATUS.md` so the next backend/platform work has an explicit reference document
 
+### WP2 data backbone pass
+- Replaced the placeholder Prisma/runtime probe schema with a real MVP schema slice in `apps/api/prisma/schema.prisma`
+- Added the first migration under `apps/api/prisma/migrations/20260329080000_mvp_data_backbone/` plus Prisma migration lockfile
+- Rewrote `apps/api/prisma/seed.ts` to produce deterministic demo data for users, agents, workflows, tasks, dependencies, events, logs, metrics, costs, alerts, commands, audit logs, and API key inventory
+- Updated `README.md` and `STATUS.md` to document the new data backbone and what remains intentionally deferred
+- Verified `prisma validate` and `prisma generate` against the new schema
+- Could not run the migration or seed end-to-end in this environment because Docker/Postgres was unavailable (`docker: command not found`)
+
 ### Web shell cleanup and route-alignment pass
 - Consolidated the shell direction around `app/layout.tsx` + `components/layout/*` and aligned the legacy `operator-shell.tsx` wrapper so it no longer drifts into a separate shell implementation
 - Standardized `PageHeader` on `components/page-header.tsx` and reduced duplication by making `components/ui/page-header.tsx` a compatibility re-export
