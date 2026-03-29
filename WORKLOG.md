@@ -22,3 +22,21 @@
 - Added `packages/shared` with shared DTOs, statuses, API error shape, and live event envelope types
 - Added local Docker Compose + helper scripts + CI baseline
 - Updated README to document the golden-path local setup
+
+## 2026-03-29
+
+### Implementation-plan pass after WP1
+- Reviewed the current repo state against the main execution docs: `docs/WORK_PACKAGES.md`, `docs/API_V1.md`, `docs/DB_SCHEMA_V1.md`, `docs/FRONTEND_SHELL_PLAN.md`, `STATUS.md`, `NOW.md`, and `WORKLOG.md`
+- Confirmed the repo is no longer blocked on WP1 direction; the bottleneck is now the missing WP2 schema/persistence layer and the lack of a first DB-backed vertical slice
+- Audited the actual scaffold state:
+  - Prisma schema is still a placeholder (`RuntimeProbe`)
+  - API routes are still hardcoded stubs
+  - shared contracts are still minimal
+  - web shell remains placeholder-first
+- Wrote `docs/IMPLEMENTATION_PLAN_NEXT.md` with a concrete next-1–2-day sequence focused on:
+  - Prisma schema + migrations + seed data
+  - shared contract expansion
+  - DB-backed overview/agents/tasks/workflows read APIs
+  - wiring the web shell to real API reads
+  - deferring broader command/alert/governance work until after the first real operational slice exists
+- Updated `STATUS.md` to reflect that the project has moved from scaffold completion into the first executable MVP-slice planning stage
