@@ -62,6 +62,34 @@
   - the first endpoints to implement and 1–2 day execution slices
 - Updated `STATUS.md` so the next backend/platform work has an explicit reference document
 
+### First DB-backed read API slice implemented
+- Replaced the placeholder Prisma schema with a real Mission Control MVP data backbone in `apps/api/prisma/schema.prisma`
+- Added an initial SQL migration at `apps/api/prisma/migrations/20260329080000_initial_read_api/migration.sql` using `prisma migrate diff --from-empty` so the repo now has a concrete migration artifact even before DB apply
+- Rewrote `apps/api/prisma/seed.ts` to provide deterministic demo data for users, agents, workflows, tasks, task dependencies, alerts, commands, events, logs, metrics, provider health, costs, audit logs, and API key inventory
+- Expanded `packages/shared` with first real contracts/DTOs for:
+  - common pagination
+  - list filters
+  - agents
+  - tasks
+  - workflows
+  - overview
+- Replaced the old hardcoded top-level API stub with Prisma-backed route handlers and services for:
+  - `GET /api/v1/overview`
+  - `GET /api/v1/agents`
+  - `GET /api/v1/agents/:agentId`
+  - `GET /api/v1/tasks`
+  - `GET /api/v1/tasks/:taskId`
+  - `GET /api/v1/workflows`
+  - `GET /api/v1/workflows/:workflowId`
+- Added small shared backend helpers for pagination and Prisma value serialization so Decimal/BigInt/JSON fields are mapped safely into DTOs
+- Updated API TypeScript config and Prisma plugin wiring so the new module layout compiles against the generated Prisma client
+- Verified locally that:
+  - `prisma generate` succeeds
+  - `@mission-control/shared` typechecks
+  - `@mission-control/api` typechecks
+  - `@mission-control/web` typechecks
+- Could not run full `migrate dev` / `db:seed` / runtime API boot against local Postgres in this environment because Docker is unavailable on the host (`docker: command not found`), so the remaining validation blocker is purely environment/runtime, not TypeScript/schema generation
+
 ### WP2 data backbone pass
 - Replaced the placeholder Prisma/runtime probe schema with a real MVP schema slice in `apps/api/prisma/schema.prisma`
 - Added the first migration under `apps/api/prisma/migrations/20260329080000_mvp_data_backbone/` plus Prisma migration lockfile

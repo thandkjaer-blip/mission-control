@@ -9,6 +9,8 @@ const envSchema = z.object({
   MISSION_CONTROL_AUTH_MODE: z.enum(['dev']).default('dev')
 });
 
+export type AppEnv = z.infer<typeof envSchema>;
+
 export const env = envSchema.parse({
   NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT ?? process.env.API_PORT,

@@ -1,3 +1,5 @@
+import type { ProviderStatus } from '../contracts/statuses.js';
+
 export interface OverviewDto {
   agents: {
     total: number;
@@ -20,7 +22,7 @@ export interface OverviewDto {
     todayUsd: number;
   };
   infra: {
-    status: 'healthy' | 'degraded' | 'down';
+    status: ProviderStatus;
   };
   alerts: {
     open: number;
@@ -28,7 +30,7 @@ export interface OverviewDto {
   };
   providers: Array<{
     name: string;
-    status: 'healthy' | 'degraded' | 'down';
+    status: ProviderStatus;
   }>;
   generatedAt: string;
 }
