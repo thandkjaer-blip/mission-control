@@ -105,3 +105,12 @@
 - Added lightweight placeholder routes for `/infrastructure`, `/costs`, and `/audit`, while keeping compatibility redirects from `/usage` -> `/costs` and `/settings` -> `/audit`
 - Upgraded the main scaffold pages (`overview`, `agents`, `tasks`, `workflows`, `alerts`, `commands`, and detail shells) so they all use the same shell/header pattern and are better positioned for real query wiring next
 - Expanded `apps/web/app/globals.css` to support the unified shell/nav/list presentation and verified the web app with `corepack pnpm --filter @mission-control/web typecheck`
+
+### Runtime bring-up/readiness pass
+- Audited the real host runtime and confirmed this environment currently lacks `docker`, `docker compose`, `postgres`, `psql`, `redis-server`, and a global `pnpm` shim in `PATH`
+- Verified that the Prisma schema still validates and that `prisma generate` succeeds via `corepack pnpm --filter @mission-control/api ...`
+- Verified package-scoped typechecks for `@mission-control/api` and `@mission-control/shared`
+- Verified that `@mission-control/web` builds successfully with `corepack pnpm --filter @mission-control/web build`
+- Attempted real runtime bring-up for the API and captured the current hard blocker: startup fails immediately with `PrismaClientInitializationError (P1001)` because `apps/api/src/plugins/prisma.ts` eagerly connects to `localhost:5432`
+- Attempted `prisma migrate deploy` and `db:seed`; both fail for the same reason, so migration apply + seed remain unverified until a real Postgres instance exists
+- Documented the exact commands, observed outputs, blockers, and shortest path to first local demo in `docs/RUNTIME_BRINGUP_STATUS.md`

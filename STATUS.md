@@ -38,14 +38,17 @@ Projektet har forladt den rene WP1-scaffoldfase. Fundamentet er på plads, og n�
 - Deterministisk demo-seed tilføjet i `apps/api/prisma/seed.ts` med brugere, agenter, workflows, tasks, dependencies, alerts, commands, events, logs, metrics, costs og provider-health snapshots
 
 ### Hvad mangler
-- Migrationen og seed-scriptet er endnu ikke runtime-verificeret mod lokal Postgres i denne session, fordi værtsmiljøet mangler Docker/`docker compose`
+- Migrationen og seed-scriptet er endnu ikke runtime-verificeret mod lokal Postgres i denne session, fordi værtsmiljøet mangler Docker/`docker compose`, Postgres og Redis
+- API’en kan derfor ikke starte end-to-end lokalt her; `PrismaClientInitializationError (P1001)` rammes ved boot mod `localhost:5432`
+- Root `pnpm`/turbo-flowet er også delvist host-blokeret her, fordi kun `corepack pnpm` findes, mens en global `pnpm` shim i `PATH` mangler
 - Web shell er stadig ikke koblet til de nye DB-backed reads
 - WP3 ingestion-kontrakter og første write-paths mangler
 - Alerts/commands/observability-siderne mangler stadig deres første rigtige read-models
 
 ### Næste skridt
-1. Kobl `apps/web` Overview -> list -> detail til de nye endpoints
-2. Verificér `prisma migrate` + `db:seed` mod lokal Postgres så snart Docker/Postgres er tilgængelig
-3. Tilføj integrationstests omkring overview/agents/tasks/workflows-slicen
-4. Udvid read-siden videre til alerts/commands/observability
-5. Start derefter den mindste nyttige WP3-ingestion-slice (heartbeats/state transitions/events)
+1. Bring lokal infra op (Docker Compose eller manuel Postgres+Redis) og følg `docs/RUNTIME_BRINGUP_STATUS.md`
+2. Verificér `prisma migrate` + `db:seed` mod rigtig Postgres, og boot derefter API + `/readyz`
+3. Kobl `apps/web` Overview -> list -> detail til de nye endpoints
+4. Tilføj integrationstests omkring overview/agents/tasks/workflows-slicen
+5. Udvid read-siden videre til alerts/commands/observability
+6. Start derefter den mindste nyttige WP3-ingestion-slice (heartbeats/state transitions/events)
