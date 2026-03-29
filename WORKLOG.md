@@ -41,6 +41,17 @@
   - deferring broader command/alert/governance work until after the first real operational slice exists
 - Updated `STATUS.md` to reflect that the project has moved from scaffold completion into the first executable MVP-slice planning stage
 
+### Frontend implementation-scaffold pass
+- Reviewed the actual `apps/web` shell against `docs/FRONTEND_SHELL_PLAN.md`, `docs/WORK_PACKAGES.md`, and `docs/API_V1.md`
+- Mapped the MVP information architecture onto the routes that already exist in `app/`, and called out the next routes to add (`alerts/[alertId]`, `commands/[commandId]`, `infrastructure`, `costs`, `audit`)
+- Wrote `docs/FRONTEND_IMPLEMENTATION_NEXT.md` with:
+  - concrete route-to-API mapping
+  - shared component primitives to standardize before deeper page work
+  - read-first data-fetching/query-key guidance
+  - live-update invalidation/reconciliation strategy
+  - the recommended order for building overview, agents, tasks, workflows, alerts, and commands surfaces
+- Updated `STATUS.md` so the next execution step explicitly references the new frontend implementation doc instead of leaving the shell direction implicit
+
 ### Backend/platform scaffold recommendation
 - Reviewed the existing monorepo shape and locked stack decisions (`Fastify`, `Prisma`, `Redis`, `WebSocket`, `packages/shared`) against the current repo contents
 - Wrote `docs/BACKEND_SCAFFOLD_RECOMMENDATION.md` with a pragmatic backend recommendation covering:
