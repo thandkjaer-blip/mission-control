@@ -188,6 +188,16 @@ Vigtig produktmæssig observation:
 5. **Web er endnu ikke wired til de nye read endpoints**
    - første rigtige demo kræver stadig frontend wiring, selv når infra er oppe
 
+## Runtime refresh integration
+
+Der findes nu en lille, eksplicit refresh-vej til real OpenClaw-data:
+
+```bash
+bash infra/scripts/runtime-refresh.sh
+```
+
+Det erstatter ikke live-ingestion, men gør real data til den normale, gentagelige importvej i stedet for en løs manuel engangskørsel. Se `docs/RUNTIME_REFRESH_RUNBOOK.md`.
+
 ## Fastest path to first working local demo
 
 ### Option A — hurtigste normale vej (anbefalet)

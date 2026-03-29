@@ -10,12 +10,13 @@ Mission Control er nu scaffoldet som WP1-monorepo efter den låste retning i `de
 - `decisions/`, `docs/`, `tasks/` — fortsat source of truth for retning og arbejde
 
 ## Golden path
-1. `pnpm install`
-2. `pnpm infra:up`
-3. `cp .env.example .env`
-4. `pnpm db:generate`
-5. `pnpm db:migrate`
-6. `pnpm dev`
+1. `corepack pnpm install`
+2. `cp .env.example .env`
+3. `bash infra/scripts/local-doctor.sh`
+4. `bash infra/scripts/infra-up.sh`
+5. `corepack pnpm db:generate`
+6. `corepack pnpm db:migrate`
+7. `corepack pnpm dev`
 
 ## Standardkommandoer
 - `pnpm dev`
@@ -26,9 +27,13 @@ Mission Control er nu scaffoldet som WP1-monorepo efter den låste retning i `de
 - `pnpm infra:up`
 - `pnpm infra:down`
 - `pnpm infra:reset`
+- `pnpm local:doctor`
+- `pnpm local:restart-api`
 - `pnpm db:generate`
 - `pnpm db:migrate`
 - `pnpm db:seed`
+- `bash infra/scripts/runtime-refresh.sh`
+- `pnpm runtime:refresh`
 
 ## WP1 leveret her
 - root workspace config (`pnpm`, `turbo`, shared TS config)
@@ -38,6 +43,13 @@ Mission Control er nu scaffoldet som WP1-monorepo efter den låste retning i `de
 - Prisma + Redis wiring baseline
 - Docker Compose baseline
 - CI workflow baseline
+
+## OpenClaw runtime refresh (normal vej til real data)
+- Kør `bash infra/scripts/runtime-refresh.sh` for at projektere rigtige OpenClaw-sessioner ind i Mission Control
+- Eller brug Mission Control API/UI via `GET /api/v1/runtime-source` og `POST /api/v1/runtime-source/refresh`
+- Scriptet loader `.env`, bruger OpenClaw standard-index som default og kører via `corepack pnpm`
+- Overview viser nu runtime-source status, sidste refresh-resultat og en refresh-knap, når API’et er oppe
+- Se `docs/RUNTIME_REFRESH_RUNBOOK.md` for overrides og forventet output
 
 ## WP2 data backbone (første rigtige slice)
 - `apps/api/prisma/schema.prisma` er nu udvidet fra placeholder-modellen til en MVP-schemaflade for:
@@ -49,7 +61,8 @@ Mission Control er nu scaffoldet som WP1-monorepo efter den låste retning i `de
   - cost records + provider health snapshots
   - alerts + control commands
   - audit logs + API key inventory
-- Første migration ligger i `apps/api/prisma/migrations/20260329080000_mvp_data_backbone/`
+- Canonical initial migration ligger i `apps/api/prisma/migrations/20260329080000_initial_read_api/`
+- Follow-up enum-fix for runtime-ingestion ligger i `apps/api/prisma/migrations/20260329111500_add_runtime_agent_type/`
 - Seed-data i `apps/api/prisma/seed.ts` opretter et deterministisk demo-miljø med:
   - 4 brugere
   - 5 agenter

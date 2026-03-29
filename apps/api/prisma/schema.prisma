@@ -13,6 +13,7 @@ enum AgentType {
   po
   graphic
   infra
+  runtime
 }
 
 enum AgentStatus {

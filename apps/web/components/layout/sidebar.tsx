@@ -31,7 +31,7 @@ export function Sidebar() {
       <div className="card sidebar-note">
         <h3>Shell direction</h3>
         <p className="muted">
-          Navigation now matches the MVP plan. Infrastructure, Costs, and Audit stay lightweight until the read model catches up.
+          Overview is the trust anchor. Infrastructure, Costs, and Audit stay lightweight until the read model catches up.
         </p>
       </div>
     </aside>

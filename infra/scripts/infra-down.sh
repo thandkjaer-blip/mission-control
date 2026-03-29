@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-docker compose -f infra/docker/docker-compose.yml down
+
+source "$(dirname "${BASH_SOURCE[0]}")/_lib.sh"
+mc_compose down

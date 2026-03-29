@@ -17,9 +17,12 @@ export function ShellNavLink({
   const active = pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <Link href={href} className={`nav-link${active ? ' active' : ''}`}>
-      <div style={{ fontWeight: 600 }}>{label}</div>
-      <div style={{ fontSize: '0.86rem', marginTop: 4 }}>{description}</div>
+    <Link href={href} className={`nav-link nav-link-rich${active ? ' active' : ''}`}>
+      <div className="nav-link-row">
+        <div style={{ fontWeight: 700 }}>{label}</div>
+        <span className="nav-link-arrow" aria-hidden="true">↗</span>
+      </div>
+      <div className="nav-link-description muted">{description}</div>
     </Link>
   );
 }

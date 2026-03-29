@@ -31,6 +31,15 @@ const overviewRoutes: FastifyPluginAsync = async (app) => {
       critical: 0,
     },
     providers: [],
+    runtime: {
+      source: 'openclaw',
+      projectedWorkflows: 0,
+      projectedAgents: 0,
+      projectedTasks: 0,
+      subagentAgents: 0,
+      latestRuntimeEventAt: null,
+      lastRefresh: null,
+    },
     generatedAt: new Date().toISOString(),
   }));
 };

@@ -11,9 +11,12 @@
     "infra:up": "bash infra/scripts/infra-up.sh",
     "infra:down": "bash infra/scripts/infra-down.sh",
     "infra:reset": "bash infra/scripts/infra-reset.sh",
-    "db:migrate": "pnpm --filter @mission-control/api prisma migrate dev",
-    "db:generate": "pnpm --filter @mission-control/api prisma generate",
-    "db:seed": "pnpm --filter @mission-control/api db:seed"
+    "local:doctor": "bash infra/scripts/local-doctor.sh",
+    "local:restart-api": "bash infra/scripts/local-restart-api.sh",
+    "db:migrate": "corepack pnpm --filter @mission-control/api exec prisma migrate dev",
+    "db:generate": "corepack pnpm --filter @mission-control/api exec prisma generate",
+    "db:seed": "corepack pnpm --filter @mission-control/api db:seed",
+    "runtime:refresh": "bash infra/scripts/runtime-refresh.sh"
   },
   "devDependencies": {
     "@types/node": "^24.5.2",

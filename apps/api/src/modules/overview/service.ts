@@ -2,9 +2,10 @@ import type { FastifyInstance } from 'fastify';
 import type { OverviewDto } from '@mission-control/shared';
 
 import { decimalToNumber } from '../_shared/serializers.js';
+import { getLatestRuntimeRefresh } from '../runtime-projector/refresh-status.js';
 
 export async function getOverview(app: FastifyInstance): Promise<OverviewDto> {
-  const [agentCounts, taskCounts, workflowCounts, alerts, providerRows, todayCost, burnRate] = await Promise.all([
+  const [agentCounts, taskCounts, workflowCounts, alerts, providerRows, todayCost, burnRate, openclawCounts, latestRuntimeEvent, lastRefresh] = await Promise.all([
     app.prisma.agent.groupBy({ by: ['status'], _count: { _all: true } }),
     app.prisma.task.groupBy({ by: ['status'], _count: { _all: true } }),
     app.prisma.workflow.groupBy({ by: ['status'], _count: { _all: true } }),
@@ -21,7 +22,19 @@ export async function getOverview(app: FastifyInstance): Promise<OverviewDto> {
       _sum: { costUsd: true },
       where: { ts: { gte: new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z') } }
     }),
-    app.prisma.agentMetricSnapshot.aggregate({ _sum: { costPerHourUsd: true } })
+    app.prisma.agentMetricSnapshot.aggregate({ _sum: { costPerHourUsd: true } }),
+    Promise.all([
+      app.prisma.workflow.count({ where: { metadata: { path: ['runtime', 'source'], equals: 'openclaw' } } }),
+      app.prisma.agent.count({ where: { metadata: { path: ['runtime', 'source'], equals: 'openclaw' } } }),
+      app.prisma.task.count({ where: { input: { path: ['source'], equals: 'openclaw' } } }),
+      app.prisma.agent.count({ where: { metadata: { path: ['runtime', 'laneType'], equals: 'subagent' } } })
+    ]),
+    app.prisma.event.findFirst({
+      where: { sourceType: 'openclaw' },
+      orderBy: { ts: 'desc' },
+      select: { ts: true }
+    }),
+    getLatestRuntimeRefresh(app)
   ]);
 
   const agentMap = Object.fromEntries(agentCounts.map((row) => [row.status, row._count._all]));
@@ -68,6 +81,15 @@ export async function getOverview(app: FastifyInstance): Promise<OverviewDto> {
       critical: alerts[1]
     },
     providers: providerStatuses,
+    runtime: {
+      source: 'openclaw',
+      projectedWorkflows: openclawCounts[0],
+      projectedAgents: openclawCounts[1],
+      projectedTasks: openclawCounts[2],
+      subagentAgents: openclawCounts[3],
+      latestRuntimeEventAt: latestRuntimeEvent?.ts.toISOString() ?? null,
+      lastRefresh
+    },
     generatedAt: new Date().toISOString()
   };
 }

@@ -50,6 +50,25 @@ export function formatUsd(value: number) {
   }).format(value);
 }
 
+export function formatDuration(value: number | null) {
+  if (value == null || Number.isNaN(value)) {
+    return '—';
+  }
+
+  if (value < 1000) {
+    return `${value} ms`;
+  }
+
+  const seconds = value / 1000;
+  if (seconds < 60) {
+    return `${seconds.toFixed(seconds >= 10 ? 0 : 1)} s`;
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.round(seconds % 60);
+  return `${minutes}m ${remainingSeconds}s`;
+}
+
 export function formatPercent(value: number) {
   return `${value.toFixed(0)}%`;
 }

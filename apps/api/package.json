@@ -9,7 +9,8 @@
     "lint": "tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "runtime:project": "tsx src/modules/runtime-projector/cli.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",

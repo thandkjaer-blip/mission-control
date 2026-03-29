@@ -1,4 +1,5 @@
 import type { ProviderStatus } from '../contracts/statuses.js';
+import type { RuntimeRefreshSnapshotDto } from './runtime.js';
 
 export interface OverviewDto {
   agents: {
@@ -32,5 +33,14 @@ export interface OverviewDto {
     name: string;
     status: ProviderStatus;
   }>;
+  runtime: {
+    source: 'openclaw';
+    projectedWorkflows: number;
+    projectedAgents: number;
+    projectedTasks: number;
+    subagentAgents: number;
+    latestRuntimeEventAt: string | null;
+    lastRefresh: RuntimeRefreshSnapshotDto | null;
+  };
   generatedAt: string;
 }
