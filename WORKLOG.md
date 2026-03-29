@@ -40,3 +40,13 @@
   - wiring the web shell to real API reads
   - deferring broader command/alert/governance work until after the first real operational slice exists
 - Updated `STATUS.md` to reflect that the project has moved from scaffold completion into the first executable MVP-slice planning stage
+
+### Backend/platform scaffold recommendation
+- Reviewed the existing monorepo shape and locked stack decisions (`Fastify`, `Prisma`, `Redis`, `WebSocket`, `packages/shared`) against the current repo contents
+- Wrote `docs/BACKEND_SCAFFOLD_RECOMMENDATION.md` with a pragmatic backend recommendation covering:
+  - concrete folder/file structure for `apps/api`
+  - a new top-level `database/migrations` area and migration sequencing
+  - expansion plan for `packages/shared` DTO/live/ingestion contracts
+  - a simple topic-based WebSocket transport for MVP live updates
+  - the first endpoints to implement and 1–2 day execution slices
+- Updated `STATUS.md` so the next backend/platform work has an explicit reference document
