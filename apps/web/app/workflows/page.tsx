@@ -1,10 +1,15 @@
-import { PageHeader } from '../../components/ui/page-header';
+import { ListShell } from '@/components/list-shell';
 
 export default function WorkflowsPage() {
   return (
-    <section>
-      <PageHeader title="Workflows" description="Placeholder workflows list view for WP1 shell scaffolding." />
-      <div className="panel">List/filter/table scaffold lives here.</div>
-    </section>
+    <ListShell
+      title="Workflows"
+      description="Workflow runs, task graph drill-down, and orchestration health. This list shell is the handoff point for the first real workflow query."
+      columns={['Workflow', 'Status', 'Trigger', 'Tasks', 'Updated']}
+      rows={[
+        ['workflow-sync', 'running', 'schedule', '6 tasks', 'just now'],
+        ['workflow-billing', 'failed', 'manual', '4 tasks', '3m ago'],
+      ]}
+    />
   );
 }

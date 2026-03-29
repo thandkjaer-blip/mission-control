@@ -61,3 +61,11 @@
   - a simple topic-based WebSocket transport for MVP live updates
   - the first endpoints to implement and 1–2 day execution slices
 - Updated `STATUS.md` so the next backend/platform work has an explicit reference document
+
+### Web shell cleanup and route-alignment pass
+- Consolidated the shell direction around `app/layout.tsx` + `components/layout/*` and aligned the legacy `operator-shell.tsx` wrapper so it no longer drifts into a separate shell implementation
+- Standardized `PageHeader` on `components/page-header.tsx` and reduced duplication by making `components/ui/page-header.tsx` a compatibility re-export
+- Reworked sidebar/navigation to use one canonical `lib/navigation.ts` source, added MVP-aligned entries for `Infrastructure`, `Costs`, and `Audit`, and removed primary-nav drift around `Usage`/`Settings`
+- Added lightweight placeholder routes for `/infrastructure`, `/costs`, and `/audit`, while keeping compatibility redirects from `/usage` -> `/costs` and `/settings` -> `/audit`
+- Upgraded the main scaffold pages (`overview`, `agents`, `tasks`, `workflows`, `alerts`, `commands`, and detail shells) so they all use the same shell/header pattern and are better positioned for real query wiring next
+- Expanded `apps/web/app/globals.css` to support the unified shell/nav/list presentation and verified the web app with `corepack pnpm --filter @mission-control/web typecheck`

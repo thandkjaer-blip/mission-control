@@ -1,28 +1,39 @@
-import Link from 'next/link';
+import { navItems } from '@/lib/navigation';
+import { ShellNavLink } from '@/components/shell-nav-link';
 
-const nav = [
-  ['Overview', '/overview'],
-  ['Agents', '/agents'],
-  ['Tasks', '/tasks'],
-  ['Workflows', '/workflows'],
-  ['Alerts', '/alerts'],
-  ['Commands', '/commands']
-] as const;
+const coreItems = navItems.filter((item) => item.section === 'core');
+const supportItems = navItems.filter((item) => item.section === 'support');
 
 export function Sidebar() {
   return (
     <aside className="sidebar">
-      <div>
+      <div className="brand-block">
         <div className="muted">Mission Control</div>
-        <h1>WP1 shell</h1>
+        <h1>MVP shell</h1>
+        <p className="muted sidebar-copy">
+          Read-first operator surface for overview, agents, tasks, workflows, alerts, and commands.
+        </p>
       </div>
-      <nav>
-        {nav.map(([label, href]) => (
-          <Link key={href} href={href}>
-            {label}
-          </Link>
+
+      <nav className="nav" aria-label="Primary navigation">
+        {coreItems.map((item) => (
+          <ShellNavLink key={item.href} href={item.href} label={item.label} description={item.description} />
         ))}
       </nav>
+
+      <div className="sidebar-section-label muted">Next MVP surfaces</div>
+      <nav className="nav" aria-label="Secondary navigation">
+        {supportItems.map((item) => (
+          <ShellNavLink key={item.href} href={item.href} label={item.label} description={item.description} />
+        ))}
+      </nav>
+
+      <div className="card sidebar-note">
+        <h3>Shell direction</h3>
+        <p className="muted">
+          Navigation now matches the MVP plan. Infrastructure, Costs, and Audit stay lightweight until the read model catches up.
+        </p>
+      </div>
     </aside>
   );
 }

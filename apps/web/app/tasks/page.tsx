@@ -1,10 +1,15 @@
-import { PageHeader } from '../../components/ui/page-header';
+import { ListShell } from '@/components/list-shell';
 
 export default function TasksPage() {
   return (
-    <section>
-      <PageHeader title="Tasks" description="Placeholder tasks list view for WP1 shell scaffolding." />
-      <div className="panel">List/filter/table scaffold lives here.</div>
-    </section>
+    <ListShell
+      title="Tasks"
+      description="Task triage surface for queued, running, failed, and blocked work. The table scaffold is ready for shared filter and pagination primitives."
+      columns={['Task', 'Status', 'Priority', 'Workflow', 'Agent']}
+      rows={[
+        ['task-201', 'running', 'high', 'workflow-sync', 'agent-alpha'],
+        ['task-203', 'failed', 'normal', 'workflow-billing', 'agent-beta'],
+      ]}
+    />
   );
 }

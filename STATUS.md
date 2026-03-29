@@ -27,13 +27,13 @@ Projektet har forladt den rene WP1-scaffoldfase. Fundamentet er på plads, og n�
 - Prisma schema er stadig kun en placeholder og mangler fuld oversættelse af `docs/DB_SCHEMA_V1.md`
 - Seed/demo-data mangler for de centrale entiteter
 - API read models for overview/agents/tasks/workflows er stadig stubs
-- Web shell er stadig placeholder-baseret og ikke koblet til rigtige API reads
+- Web shell er nu ryddet lidt op på shell-/route-niveau, men er stadig kun delvist placeholder-baseret og endnu ikke koblet til rigtige API reads
 - WP3 ingestion-kontrakter og første write-paths mangler
 
 ### Næste skridt
 1. Implementér WP2 rigtigt: oversæt DB schema v1 til Prisma models, migrationer og seed-data
 2. Udvid `packages/shared` til reelle DTOs/filterkontrakter for overview/agents/tasks/workflows/alerts/commands
 3. Erstat stub-API’er med DB-backed read models for overview, agents, tasks og workflows
-4. Brug `docs/FRONTEND_IMPLEMENTATION_NEXT.md` som build-order for at gøre web shell til en rigtig MVP-operatørflade
-5. Kobl web shell til disse reads og gør Overview -> list -> detail klikbart på rigtige data
+4. Byg videre på den nye shell-oprydning: koble Overview/Agents/Tasks/Workflows til rigtige reads ovenpå den nu alignede navigation og route-struktur
+5. Gør Overview -> list -> detail klikbart på rigtige data med shared query/data-layer scaffolding
 6. Start derefter den mindste nyttige WP3-ingestion-slice (heartbeats/state transitions/events)

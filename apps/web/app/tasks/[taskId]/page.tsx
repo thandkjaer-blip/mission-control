@@ -1,6 +1,16 @@
-import { PageHeader } from '../../../components/ui/page-header';
+import { PageHeader } from '@/components/page-header';
 
 export default async function TaskDetailPage({ params }: { params: Promise<{ taskId: string }> }) {
   const { taskId } = await params;
-  return <section><PageHeader title={`Task ${taskId}`} description="Task detail shell with dependencies, logs, and action placeholder." /><div className="panel">Summary / dependencies / events / costs</div></section>;
+
+  return (
+    <section className="page">
+      <PageHeader
+        title={`Task ${taskId}`}
+        description="Task detail shell for summary, dependencies, events, logs, costs, and action placeholders."
+        eyebrow="Task detail"
+      />
+      <div className="panel">Summary / dependencies / events / costs</div>
+    </section>
+  );
 }

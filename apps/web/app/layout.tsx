@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 
 export const metadata = {
   title: 'Mission Control',
-  description: 'Operator shell scaffold'
+  description: 'Operator shell scaffold',
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
