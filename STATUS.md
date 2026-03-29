@@ -41,14 +41,15 @@ Projektet har forladt den rene WP1-scaffoldfase. Fundamentet er på plads, og n�
 - Migrationen og seed-scriptet er endnu ikke runtime-verificeret mod lokal Postgres i denne session, fordi værtsmiljøet mangler Docker/`docker compose`, Postgres og Redis
 - API’en kan derfor ikke starte end-to-end lokalt her; `PrismaClientInitializationError (P1001)` rammes ved boot mod `localhost:5432`
 - Root `pnpm`/turbo-flowet er også delvist host-blokeret her, fordi kun `corepack pnpm` findes, mens en global `pnpm` shim i `PATH` mangler
-- Web shell er stadig ikke koblet til de nye DB-backed reads
+- Web shell er nu koblet til overview/agents/tasks/workflows read APIs for hovedflowet, men mangler stadig live invalidation, shell-level `GET /api/v1/me`, richer filter controls og mere raffinerede loading/empty states
+- Detailundersiderne viser nu reelle summary/datafelter, men events/logs/metrics/cost/history/graph-subviews er stadig kun markerede gaps indtil de tilsvarende endpoints findes
 - WP3 ingestion-kontrakter og første write-paths mangler
 - Alerts/commands/observability-siderne mangler stadig deres første rigtige read-models
 
 ### Næste skridt
 1. Bring lokal infra op (Docker Compose eller manuel Postgres+Redis) og følg `docs/RUNTIME_BRINGUP_STATUS.md`
 2. Verificér `prisma migrate` + `db:seed` mod rigtig Postgres, og boot derefter API + `/readyz`
-3. Kobl `apps/web` Overview -> list -> detail til de nye endpoints
-4. Tilføj integrationstests omkring overview/agents/tasks/workflows-slicen
-5. Udvid read-siden videre til alerts/commands/observability
+3. Tilføj integrationstests omkring overview/agents/tasks/workflows-slicen samt web-fetch fejltilfælde
+4. Wire shell-level `GET /api/v1/me` + freshness/live status i topbaren
+5. Udvid read-siden videre til alerts/commands/observability samt detail-subresources (events/logs/metrics/costs/graph)
 6. Start derefter den mindste nyttige WP3-ingestion-slice (heartbeats/state transitions/events)

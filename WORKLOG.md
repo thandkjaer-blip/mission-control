@@ -106,6 +106,15 @@
 - Upgraded the main scaffold pages (`overview`, `agents`, `tasks`, `workflows`, `alerts`, `commands`, and detail shells) so they all use the same shell/header pattern and are better positioned for real query wiring next
 - Expanded `apps/web/app/globals.css` to support the unified shell/nav/list presentation and verified the web app with `corepack pnpm --filter @mission-control/web typecheck`
 
+### Web read-API wiring pass
+- Added a small server-side web API client in `apps/web/lib/api.ts` that targets `NEXT_PUBLIC_API_BASE_URL` / `MISSION_CONTROL_API_URL`, disables caching for operator reads, and surfaces coherent failure states when the API is unreachable
+- Added lightweight formatting and UI helpers (`lib/format.ts`, `components/data-state.tsx`, `components/status-badge.tsx`) so the shell can show real statuses/timestamps/costs without jumping straight to a bigger query framework
+- Replaced placeholder/static Overview cards with live data from `GET /api/v1/overview`, including provider/infra status and explicit notes for still-missing attention queues / command activity slices
+- Replaced static list tables for `/agents`, `/tasks`, and `/workflows` with server-rendered reads against the new list endpoints, preserving URL query passthrough for status filters already now
+- Replaced bare detail placeholders for `/agents/[agentId]`, `/tasks/[taskId]`, and `/workflows/[workflowId]` with live summary/detail renders from the new detail endpoints
+- Documented temporary product gaps directly in the UI (events/logs/metrics/costs/graph/actions) so the shell stays coherent instead of pretending those slices are already wired
+- Added `.gitignore` coverage for `*.tsbuildinfo` and re-verified `corepack pnpm --filter @mission-control/web typecheck`
+
 ### Runtime bring-up/readiness pass
 - Audited the real host runtime and confirmed this environment currently lacks `docker`, `docker compose`, `postgres`, `psql`, `redis-server`, and a global `pnpm` shim in `PATH`
 - Verified that the Prisma schema still validates and that `prisma generate` succeeds via `corepack pnpm --filter @mission-control/api ...`

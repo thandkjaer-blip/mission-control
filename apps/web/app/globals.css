@@ -148,12 +148,21 @@ button {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.card-grid-wide {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
 .card,
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px;
+}
+
+.card h3,
+.panel h3 {
+  margin-top: 0;
 }
 
 .card-link:hover {
@@ -185,6 +194,35 @@ button {
   font-size: 12px;
 }
 
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.status-ok {
+  background: rgba(57, 217, 138, 0.12);
+  border-color: rgba(57, 217, 138, 0.35);
+}
+
+.status-warn {
+  background: rgba(245, 196, 81, 0.12);
+  border-color: rgba(245, 196, 81, 0.35);
+}
+
+.status-danger {
+  background: rgba(255, 107, 107, 0.12);
+  border-color: rgba(255, 107, 107, 0.35);
+}
+
+.status-neutral {
+  background: var(--panel-2);
+}
+
 .button {
   padding: 10px 14px;
   border-radius: 10px;
@@ -208,15 +246,72 @@ button {
   padding: 12px;
   border-bottom: 1px solid var(--border);
   text-align: left;
+  vertical-align: top;
 }
 
 .table tbody tr:last-child td {
   border-bottom: 0;
 }
 
+.table-link:hover {
+  color: var(--accent);
+}
+
 .list {
   display: grid;
   gap: 12px;
+}
+
+.detail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.detail-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-list li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.compact-list li {
+  align-items: center;
+}
+
+.detail-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-align: right;
+}
+
+.provider-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.provider-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.data-state p {
+  margin-bottom: 0;
+}
+
+.data-state-warning {
+  border-color: rgba(245, 196, 81, 0.45);
 }
 
 @media (max-width: 900px) {
